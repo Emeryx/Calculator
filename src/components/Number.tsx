@@ -24,7 +24,7 @@ const Number : React.FC<NumberProps> = ({ num }) => {
     const numericVal = numericObj ? numericObj[num] : undefined;
     const colSpan = num === 'zero' ? '2' : '1'
     return (
-        <button id={num} className={'col-span-'+colSpan+' font-bold text-indigo-950 h-[75px] text-3xl'}>{numericVal}</button>
+        <button id={num} className={'col-span-'+colSpan+' font-bold hover:bg-indigo-50 text-indigo-950 h-[75px] text-3xl'}>{numericVal}</button>
     )
 }
 

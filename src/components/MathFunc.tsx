@@ -17,7 +17,7 @@ const Func : React.FC<FuncProps> = ({ func }) => {
     console.log(funcObj)
     const funcDisplay = funcObj ? funcObj[func] : undefined;
     return (
-        <button id={func} className={'col-span-1 bg-indigo-50 font-bold text-indigo-950 h-[75px] w-[75px] text-4xl'} dangerouslySetInnerHTML= { funcDisplay ? { __html : funcDisplay } : undefined } />
+        <button id={func} className={'col-span-1 bg-indigo-50 hover:bg-indigo-100 font-bold text-indigo-950 h-[75px] w-[75px] text-4xl'} dangerouslySetInnerHTML= { funcDisplay ? { __html : funcDisplay } : undefined } />
     )
 }
 
