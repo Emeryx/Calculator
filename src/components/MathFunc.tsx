@@ -1,10 +1,18 @@
 import React from "react";
 
-interface FuncProps { func : string }
+interface FuncProps { func : string , update : Function }
 
 interface Functions { [ name : string ] : string }
 
-const Func : React.FC<FuncProps> = ({ func }) => {
+const Func : React.FC<FuncProps> = ({ func , update }) => {
+
+    const handleClick : React.MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.preventDefault();
+        if(funcDisplay && funcObj){
+            const funcString = funcDisplay === '&#215;' ? '*' : funcDisplay === '&#xF7;' ? '/' : funcDisplay
+            update(funcDisplay, funcString)
+        }
+    }
 
     const funcArr : Functions[] = [
         { 'add': '+' },
@@ -14,10 +22,9 @@ const Func : React.FC<FuncProps> = ({ func }) => {
     ];
 
     const funcObj: Functions | undefined = funcArr.find( (obj) => obj.hasOwnProperty(func) );
-    console.log(funcObj)
     const funcDisplay = funcObj ? funcObj[func] : undefined;
     return (
-        <button id={func} className={'col-span-1 bg-indigo-50 hover:bg-indigo-100 font-bold text-indigo-950 h-[75px] w-[75px] text-4xl'} dangerouslySetInnerHTML= { funcDisplay ? { __html : funcDisplay } : undefined } />
+        <button onClick={handleClick} id={func} className={'col-span-1 bg-indigo-50 hover:bg-indigo-100 font-bold text-indigo-950 h-[75px] w-[75px] text-4xl'} dangerouslySetInnerHTML= { funcDisplay ? { __html : funcDisplay } : undefined } />
     )
 }
 

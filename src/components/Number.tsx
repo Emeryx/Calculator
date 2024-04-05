@@ -1,10 +1,10 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 
-interface NumberProps { num : string }
+interface NumberProps { num : string, update : Function }
 
 interface Numbers { [ name : string ] : number }
 
-const Number : React.FC<NumberProps> = ({ num }) => {
+const Number : React.FC<NumberProps> = ({ num, update }) => {
 
     const numbersArr : Numbers[] = [
         { 'zero': 0 },
@@ -19,12 +19,17 @@ const Number : React.FC<NumberProps> = ({ num }) => {
         { 'nine': 9 }
     ];
 
+    const handleClick : React.MouseEventHandler<HTMLButtonElement> = (e) => {
+        e.preventDefault();
+        if(numericVal) update(numericVal)
+        return;
+    }
+
     const numericObj: Numbers | undefined = numbersArr.find( (obj) => obj.hasOwnProperty(num) );
-    console.log(numericObj)
     const numericVal = numericObj ? numericObj[num] : undefined;
     const colSpan = num === 'zero' ? '2' : '1'
     return (
-        <button id={num} className={'col-span-'+colSpan+' font-bold hover:bg-indigo-50 text-indigo-950 h-[75px] text-3xl'}>{numericVal}</button>
+        <button onClick={handleClick} id={num} className={'col-span-'+colSpan+' font-bold hover:bg-indigo-50 text-indigo-950 h-[75px] text-3xl'}>{numericVal}</button>
     )
 }
 
