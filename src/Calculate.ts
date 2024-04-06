@@ -69,23 +69,22 @@ const handleFormulaLogic = (prefixed: string[]): string[] => {
             if (calcSequence.length >= 1) {
                 // Handling the push and calculation of a calculation sequence with the higher priority (*/ operators) if exists
                 calcSequence.push(prefixed[i - 1]); // Pushes last not included number which has a */ operator before it
-                console.log("CURRENT CALC SEQUENCE: "+calcSequence);
+                console.log("CURRENT CALC SEQUENCE: " + calcSequence);
                 for (let j = 1; j < calcSequence.length; j += 2) {
                     const n1 = parseFloat(calcSequence[j - 1]); // Num before infix op
                     const n2 = parseFloat(calcSequence[j + 1]); // Num after infix op
-                    if(!sequenceResult){ // If calculation result is 0 (beginning) it will set the initial first needed calculation
-                        if(calcSequence[j]==='*'){
-                            sequenceResult = n1*n2;
+                    if (!sequenceResult) {
+                        // If calculation result is 0 (beginning) it will set the initial first needed calculation
+                        if (calcSequence[j] === "*") {
+                            sequenceResult = n1 * n2;
+                        } else {
+                            sequenceResult = n1 / n2;
                         }
-                        else{
-                            sequenceResult = n1/n2;
-                        }
-                    }
-                    else{ // Sequence result exists
-                        if(calcSequence[j]==='*'){
+                    } else {
+                        // Sequence result exists
+                        if (calcSequence[j] === "*") {
                             sequenceResult *= n2;
-                        }
-                        else{
+                        } else {
                             sequenceResult /= n2;
                         }
                     }
@@ -93,26 +92,75 @@ const handleFormulaLogic = (prefixed: string[]): string[] => {
                 formulaLogic.push(sequenceResult.toString());
                 formulaLogic.push(prefixed[i]);
                 calcSequence = [];
-                sequenceResult=0;
-            } else { // If a calculation sequence does not currently exist
+                sequenceResult = 0;
+            } else {
+                // If a calculation sequence does not currently exist
                 formulaLogic.push(prefixed[i - 1]);
                 formulaLogic.push(prefixed[i]);
             }
         }
-        if(prefixed[prefixed.length-2]==='*' || prefixed[prefixed.length-2]==='/'){
-            if(calcSequence.length>1){
-
+    }
+    if (
+        prefixed[prefixed.length - 2] === "*" ||
+        prefixed[prefixed.length - 2] === "/"
+    ) {
+        // Handle logic for last item
+        if (calcSequence.length > 1) {
+            calcSequence.push(prefixed[prefixed.length - 1]);
+            console.log("CURRENT CALC SEQUENCE: " + calcSequence);
+            for (let j = 1; j < calcSequence.length; j += 2) {
+                const n1 = parseFloat(calcSequence[j - 1]); // Num before infix op
+                const n2 = parseFloat(calcSequence[j + 1]); // Num after infix op
+                if (!sequenceResult) {
+                    // If calculation result is 0 (beginning) it will set the initial first needed calculation
+                    if (calcSequence[j] === "*") {
+                        sequenceResult = n1 * n2;
+                    } else {
+                        sequenceResult = n1 / n2;
+                    }
+                } else {
+                    // Sequence result exists
+                    if (calcSequence[j] === "*") {
+                        sequenceResult *= n2;
+                    } else {
+                        sequenceResult /= n2;
+                    }
+                }
             }
-            else{
-                
-            }
+            formulaLogic.push(sequenceResult.toString());
         }
+    } else {
+        formulaLogic.push(prefixed[prefixed.length - 1]);
     }
     return formulaLogic;
 };
 
-const handleFinalCalculation = () => {
-    return ["420"];
+const handleFinalCalculation = (formulaLogic: string[]) => {
+    if(formulaLogic.length === 1){
+        return formulaLogic[0];
+    }
+    let finalResult = 0;
+    for (let i = 1; i < formulaLogic.length; i += 2) {
+        const n1 = parseFloat(formulaLogic[i - 1]);
+        const n2 = parseFloat(formulaLogic[i + 1]);
+        if (!finalResult) {
+            if (formulaLogic[i] === "+") {
+                finalResult = n1 + n2;
+            } else {
+                // Must be -
+                finalResult = n1 - n2;
+            }
+        } else {
+            // If continues final result
+            if (formulaLogic[i] === "+") {
+                finalResult += n2;
+            }
+            else{ // Must be -
+                finalResult -= n2;
+            }
+        }
+    }
+    return finalResult.toString();
 };
 
 const Calculate = (calc: string): string => {
@@ -124,7 +172,7 @@ const Calculate = (calc: string): string => {
     console.log(prefixed);
     const formulaLogic: string[] = handleFormulaLogic(prefixed); // ['-0.26...','+','6.22...','-'10]
     console.log(formulaLogic);
-    const result: string = "420"; // 0.26 + 6.22 - 10 = -3.52...
+    const result: string = handleFinalCalculation(formulaLogic); // 0.26 + 6.22 - 10 = -3.52...
     console.log(result);
     return result;
 };

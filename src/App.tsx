@@ -29,7 +29,7 @@ function App() {
         }
 
         if (displayValue === "&#xF7;" && inputtedNum === 0) return; // Do nothing if the input of 0 follows a division
-        
+
         if (
             // Logic handling for when a number is inputted but the last input is an operator
             displayValue === "+" ||
@@ -83,7 +83,7 @@ function App() {
     // Logging each time state changes
     useEffect(() => {
         // console.log("Display: " + displayValue);
-        console.log("Calculation string: " + calcString);
+        // console.log("Calculation string: " + calcString);
     }, [calcString, displayValue]);
 
     // Calculation
@@ -94,8 +94,9 @@ function App() {
             calcString[calcString.length - 1] >= "0"
         ) {
             // If the last digit in the calculation is a digit it will set the display to the calculation and the calculation string to the result accordingly
-            SetDisplay(Calculate(calcString));
-            setCalcString(displayValue);
+            const result = Calculate(calcString);
+            SetDisplay(result);
+            setCalcString(result);
         } else {
             // Do nothing
         }
