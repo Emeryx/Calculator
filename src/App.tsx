@@ -56,8 +56,8 @@ function App() {
     // Logging each time state changes
 
     useEffect(() => {
-        console.log("Display: " + displayValue);
-        console.log("Calculation: " + calcString);
+        // console.log("Display: " + displayValue);
+        // console.log("Calculation: " + calcString);
     }, [calcString, displayValue]);
 
     // Calculation
@@ -65,6 +65,10 @@ function App() {
     const handleCalc = () => {
         SetDisplay(Calculate(calcString));
     };
+
+    // TODO: Look at Calculate.ts
+    // TODO: Make writing zero possible xD
+    // TODO: Add decimal button functionality, Calculate.ts had been adjusted accordingly
 
     return (
         <div className="flex justify-center align-center mt-[15vh]">
