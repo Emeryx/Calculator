@@ -18,15 +18,20 @@ function App() {
     const [calcString, setCalcString] = useState("0");
 
     const updateDisplay = (inputtedNum: number) => {
-        if (displayValue === "0" && inputtedNum === 0) return;
+        if (inputtedNum === 0 && (displayValue === "0" || calcString === "0"))
+            return; // If the inputted number is zero and the display value is zero or it's the start of the calculation nothing will happen
 
         if (calcString === "0") {
+            // At the start of calculation replace the zero
             setCalcString(inputtedNum.toString());
             SetDisplay(inputtedNum.toString());
             return;
         }
 
+        if (displayValue === "&#xF7;" && inputtedNum === 0) return; // Do nothing if the input of 0 follows a division
+        
         if (
+            // Logic handling for when a number is inputted but the last input is an operator
             displayValue === "+" ||
             displayValue === "-" ||
             displayValue === "&#xF7;" ||
@@ -34,18 +39,23 @@ function App() {
         ) {
             SetDisplay(inputtedNum.toString());
             setCalcString(calcString + inputtedNum.toString());
+        } else {
+            // Else if last digit is a number
+            setCalcString(calcString + inputtedNum.toString());
+            SetDisplay(displayValue + inputtedNum.toString());
         }
-
-        setCalcString(calcString + inputtedNum.toString());
-        SetDisplay(displayValue + inputtedNum.toString());
     };
 
     const updateDisplayFunc = (
         inputtedFuncDisplay: string,
         inputtedFunc: string
     ) => {
-        SetDisplay(inputtedFuncDisplay);
-        setCalcString(calcString + inputtedFunc);
+        if (calcString[calcString.length - 1] !== ".") {
+            SetDisplay(inputtedFuncDisplay);
+            setCalcString(calcString + inputtedFunc);
+        } else {
+            // Do nothing if last character in calc string is a decimal point to not allow an operator right after a decimal point
+        }
     };
 
     const clearDisplay = () => {
@@ -53,22 +63,47 @@ function App() {
         SetDisplay("0");
     };
 
-    // Logging each time state changes
+    // Adding decimals
 
+    const addDecimal = () => {
+        if (displayValue.includes("."))
+            return; // If the display value already has a decimal point it will not do anything
+        else if (
+            // If in a digit sequence it will add up to the calc string
+            parseFloat(calcString[calcString.length - 1]) ||
+            calcString[calcString.length - 1] === "0"
+        ) {
+            setCalcString(calcString + ".");
+            SetDisplay(displayValue + ".");
+        } else {
+            // Do nothing if last character in calc string is an operator or a decimal point
+        }
+    };
+
+    // Logging each time state changes
     useEffect(() => {
         // console.log("Display: " + displayValue);
-        // console.log("Calculation: " + calcString);
+        console.log("Calculation string: " + calcString);
     }, [calcString, displayValue]);
 
     // Calculation
 
     const handleCalc = () => {
-        SetDisplay(Calculate(calcString));
+        if (
+            calcString[calcString.length - 1] <= "9" &&
+            calcString[calcString.length - 1] >= "0"
+        ) {
+            // If the last digit in the calculation is a digit it will set the display to the calculation and the calculation string to the result accordingly
+            SetDisplay(Calculate(calcString));
+            setCalcString(displayValue);
+        } else {
+            // Do nothing
+        }
     };
 
     // TODO: Look at Calculate.ts
-    // TODO: Make writing zero possible xD
-    // TODO: Add decimal button functionality, Calculate.ts had been adjusted accordingly
+    // TODO: Make writing zero possible xD - DONE
+    // TODO: Add decimal button functionality, Calculate.ts had been adjusted accordingly - DONE
 
     return (
         <div className="flex justify-center align-center mt-[15vh]">
@@ -95,7 +130,7 @@ function App() {
                 <Number num="one" update={updateDisplay} />
                 <Number num="two" update={updateDisplay} />
                 <Number num="three" update={updateDisplay} />
-                <Decimal />
+                <Decimal addDecimal={addDecimal} />
 
                 <Number num="zero" update={updateDisplay} />
                 <CalcButton calcFunc={handleCalc} />

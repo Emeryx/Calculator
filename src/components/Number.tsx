@@ -25,7 +25,7 @@ const Number: React.FC<NumberProps> = ({ num, update }) => {
 
     const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
         e.preventDefault();
-        if (numericVal) update(numericVal);
+        if (numericVal!==undefined && numericVal>=0 && numericVal<=9) update(numericVal);
         return;
     };
 
