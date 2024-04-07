@@ -4,8 +4,13 @@ const lex = (calc: string) => {
     let tokenNum = "";
     let tokenOp = "";
     for (let i = 0; i < calc.length; i++) {
+        
         // Iterates over calculation string, Returns new array composed of digit and operator array like ['123','/','--',4567'] (Tokens) and allows for easier prefixing afterwards - Distinguishing with prefix and infix minuses by using -- on prefixes
         const char = calc[i]; // Current character in iteration over original string
+        if(char==='-' && i===0){ // Handling if calc string started with -
+            lexed.push('--');
+            continue;
+        }
         if ((char >= "0" && char <= "9") || char === ".") {
             // Check if a char sequence begins
             if (tokenOp.endsWith("-") && tokenOp.length > 1) {
@@ -54,89 +59,33 @@ const handlePrefix = (lexed: string[]) => {
 // TODO: Function that handles multipication & division
 // TODO: Handle additional addition & subtraction
 
-const handleFormulaLogic = (prefixed: string[]): string[] => {
+const handleMultipicationDivision = (prefixed: string[]): string[] => {
     const formulaLogic: string[] = []; // Array for final formula logic result prioritizng */ operators
-    let calcSequence: string[] = []; // Array for storing current calculation sequence (One or more */ operators involved)
-    let sequenceResult = 0; // Sequence result calculation for each calculation sequence
-    for (let i = 1; i < prefixed.length; i += 2) {
-        // Iterating over prefixed array beginning from what must be the infix operator index (1)
-        if (prefixed[i] === "*" || prefixed[i] === "/") {
-            // If the current infix op is * or / it will push the operator's first number calculation and the operator itself
-            calcSequence.push(prefixed[i - 1]); // Push the first num
-            calcSequence.push(prefixed[i]); // Push operator
-        } else {
-            // If current operator is not */ The calculation sequence breaks
-            if (calcSequence.length >= 1) {
-                // Handling the push and calculation of a calculation sequence with the higher priority (*/ operators) if exists
-                calcSequence.push(prefixed[i - 1]); // Pushes last not included number which has a */ operator before it
-                console.log("CURRENT CALC SEQUENCE: " + calcSequence);
-                for (let j = 1; j < calcSequence.length; j += 2) {
-                    const n1 = parseFloat(calcSequence[j - 1]); // Num before infix op
-                    const n2 = parseFloat(calcSequence[j + 1]); // Num after infix op
-                    if (!sequenceResult) {
-                        // If calculation result is 0 (beginning) it will set the initial first needed calculation
-                        if (calcSequence[j] === "*") {
-                            sequenceResult = n1 * n2;
-                        } else {
-                            sequenceResult = n1 / n2;
-                        }
-                    } else {
-                        // Sequence result exists
-                        if (calcSequence[j] === "*") {
-                            sequenceResult *= n2;
-                        } else {
-                            sequenceResult /= n2;
-                        }
-                    }
-                }
-                formulaLogic.push(sequenceResult.toString());
-                formulaLogic.push(prefixed[i]);
-                calcSequence = [];
-                sequenceResult = 0;
-            } else {
-                // If a calculation sequence does not currently exist
-                formulaLogic.push(prefixed[i - 1]);
-                formulaLogic.push(prefixed[i]);
-            }
+    let l: number = 0; // Left
+    let op: string = ""; // Infix operator
+    let r: number = 0; // Right
+    l = parseFloat(prefixed[0]);
+    for (let i = 1; i < prefixed.length - 1; i += 2) { // [1,+,2,*,3,-,4]
+        // Trio
+        op = prefixed[i];
+        r = parseFloat(prefixed[i+1]);
+        if (op === "*") {
+            l = l * r;
+        } else if (op === "/") {
+            l = l / r;
+        }
+        else{
+            formulaLogic.push(l.toString());
+            formulaLogic.push(op);
+            l = r;
         }
     }
-    if (
-        prefixed[prefixed.length - 2] === "*" ||
-        prefixed[prefixed.length - 2] === "/"
-    ) {
-        // Handle logic for last item
-        if (calcSequence.length > 1) {
-            calcSequence.push(prefixed[prefixed.length - 1]);
-            console.log("CURRENT CALC SEQUENCE: " + calcSequence);
-            for (let j = 1; j < calcSequence.length; j += 2) {
-                const n1 = parseFloat(calcSequence[j - 1]); // Num before infix op
-                const n2 = parseFloat(calcSequence[j + 1]); // Num after infix op
-                if (!sequenceResult) {
-                    // If calculation result is 0 (beginning) it will set the initial first needed calculation
-                    if (calcSequence[j] === "*") {
-                        sequenceResult = n1 * n2;
-                    } else {
-                        sequenceResult = n1 / n2;
-                    }
-                } else {
-                    // Sequence result exists
-                    if (calcSequence[j] === "*") {
-                        sequenceResult *= n2;
-                    } else {
-                        sequenceResult /= n2;
-                    }
-                }
-            }
-            formulaLogic.push(sequenceResult.toString());
-        }
-    } else {
-        formulaLogic.push(prefixed[prefixed.length - 1]);
-    }
+    formulaLogic.push(l.toString());
     return formulaLogic;
 };
 
-const handleFinalCalculation = (formulaLogic: string[]) => {
-    if(formulaLogic.length === 1){
+const handleAdditionSubtraction = (formulaLogic: string[]) => {
+    if (formulaLogic.length === 1) {
         return formulaLogic[0];
     }
     let finalResult = 0;
@@ -154,8 +103,8 @@ const handleFinalCalculation = (formulaLogic: string[]) => {
             // If continues final result
             if (formulaLogic[i] === "+") {
                 finalResult += n2;
-            }
-            else{ // Must be -
+            } else {
+                // Must be -
                 finalResult -= n2;
             }
         }
@@ -164,15 +113,15 @@ const handleFinalCalculation = (formulaLogic: string[]) => {
 };
 
 const Calculate = (calc: string): string => {
-    console.log("Inputted value: " + calc); // '123/-456+7*8/9-10'
+    console.log("*---------CALCULATION INBOUND!---------*"); // '123/-456+7*8/9-10'
     // Lexing
     const lexed: string[] = lex(calc); // ['123','/','--','456','+','7','*','8','/','9','-','10']
     console.log("Lexed Array: " + lexed);
     const prefixed: string[] = handlePrefix(lexed); // ['123','/','-456','+','7','*','8','/','9','-','10']
-    console.log(prefixed);
-    const formulaLogic: string[] = handleFormulaLogic(prefixed); // ['-0.26...','+','6.22...','-'10]
-    console.log(formulaLogic);
-    const result: string = handleFinalCalculation(formulaLogic); // 0.26 + 6.22 - 10 = -3.52...
+    console.log("Prefixed: " + prefixed);
+    const formulaLogic: string[] = handleMultipicationDivision(prefixed); // ['-0.26...','+','6.22...','-'10]
+    console.log("After formula logic: " + formulaLogic);
+    const result: string = handleAdditionSubtraction(formulaLogic); // 0.26 + 6.22 - 10 = -3.52...
     console.log(result);
     return result;
 };

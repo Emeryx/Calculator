@@ -61,6 +61,7 @@ function App() {
     const clearDisplay = () => {
         setCalcString("0");
         SetDisplay("0");
+        console.log('CALC STRING RESET: '+calcString);
     };
 
     // Adding decimals
@@ -79,12 +80,11 @@ function App() {
             // Do nothing if last character in calc string is an operator or a decimal point
         }
     };
-
+    
     // Logging each time state changes
     useEffect(() => {
-        // console.log("Display: " + displayValue);
-        // console.log("Calculation string: " + calcString);
-    }, [calcString, displayValue]);
+        console.log('CALC STRING: '+calcString);
+    }, [calcString]);
 
     // Calculation
 
