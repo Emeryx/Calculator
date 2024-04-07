@@ -15,16 +15,20 @@ function App() {
 
     const [displayValue, SetDisplay] = useState("0"); // 25 digits is the width aesthetic limit I checked it already
 
-    const [calcString, setCalcString] = useState("0");
+    const [calcString, setCalcString] = useState("");
+
+    const [isContinuingPrevCalc,continuingPrevCalcUpdate] = useState(false);
 
     const updateDisplay = (inputtedNum: number) => {
-        if (inputtedNum === 0 && (displayValue === "0" || calcString === "0"))
+
+        if (inputtedNum === 0 && (displayValue === "0" || calcString === ""))
             return; // If the inputted number is zero and the display value is zero or it's the start of the calculation nothing will happen
 
-        if (calcString === "0") {
+        if (calcString === "" || isContinuingPrevCalc) {
             // At the start of calculation replace the zero
             setCalcString(inputtedNum.toString());
             SetDisplay(inputtedNum.toString());
+            continuingPrevCalcUpdate(false);
             return;
         }
 
@@ -50,7 +54,8 @@ function App() {
         inputtedFuncDisplay: string,
         inputtedFunc: string
     ) => {
-        if (calcString[calcString.length - 1] !== ".") {
+        if(isContinuingPrevCalc) continuingPrevCalcUpdate(false);
+        if (!calcString.endsWith(".")) {
             SetDisplay(inputtedFuncDisplay);
             setCalcString(calcString + inputtedFunc);
         } else {
@@ -59,9 +64,9 @@ function App() {
     };
 
     const clearDisplay = () => {
-        setCalcString("0");
+        setCalcString("");
         SetDisplay("0");
-        console.log('CALC STRING RESET: '+calcString);
+        console.log("CALC STRING RESET: " + calcString);
     };
 
     // Adding decimals
@@ -80,11 +85,15 @@ function App() {
             // Do nothing if last character in calc string is an operator or a decimal point
         }
     };
-    
+
     // Logging each time state changes
     useEffect(() => {
-        console.log('CALC STRING: '+calcString);
+        console.log("CALC STRING: " + calcString);
     }, [calcString]);
+    /*
+    useEffect(() => {
+        console.log("DISPLAY " + displayValue);
+    }, [displayValue]);*/
 
     // Calculation
 
@@ -97,6 +106,7 @@ function App() {
             const result = Calculate(calcString);
             SetDisplay(result);
             setCalcString(result);
+            continuingPrevCalcUpdate(true);
         } else {
             // Do nothing
         }
